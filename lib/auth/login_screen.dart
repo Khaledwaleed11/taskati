@@ -74,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 8),
 
                 const Text(
-                  "Login to continue to Taskatii",
+                  "Login to continue to Taskati",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.grey,
@@ -133,7 +133,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         return;
                       }
 
-                      // لو المستخدم جاي من Register
                       if (widget.registeredEmail != null) {
                         if (emailController.text.trim() !=
                             widget.registeredEmail ||
