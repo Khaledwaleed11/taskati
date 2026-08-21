@@ -1,7 +1,6 @@
 class AppValidator {
   AppValidator._();
 
-
   static String? validateEmail(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Email is required';
@@ -13,9 +12,7 @@ class AppValidator {
       return 'Email must not contain spaces';
     }
 
-    final emailRegex = RegExp(
-      r'^[\w\.-]+@[\w\.-]+\.\w+$',
-    );
+    final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$');
 
     if (!emailRegex.hasMatch(email)) {
       return 'Please enter a valid email';
@@ -32,15 +29,14 @@ class AppValidator {
     return null;
   }
 
-
   static String? validatePassword(
-      String? value, {
-        int minLength = 8,
-        bool requireUppercase = true,
-        bool requireLowercase = true,
-        bool requireNumber = true,
-        bool requireSpecialCharacter = true,
-      }) {
+    String? value, {
+    int minLength = 8,
+    bool requireUppercase = true,
+    bool requireLowercase = true,
+    bool requireNumber = true,
+    bool requireSpecialCharacter = true,
+  }) {
     if (value == null || value.isEmpty) {
       return 'Password is required';
     }
@@ -53,18 +49,15 @@ class AppValidator {
       return 'Password must be at least $minLength characters';
     }
 
-    if (requireUppercase &&
-        !RegExp(r'[A-Z]').hasMatch(value)) {
+    if (requireUppercase && !RegExp(r'[A-Z]').hasMatch(value)) {
       return 'Password must contain an uppercase letter';
     }
 
-    if (requireLowercase &&
-        !RegExp(r'[a-z]').hasMatch(value)) {
+    if (requireLowercase && !RegExp(r'[a-z]').hasMatch(value)) {
       return 'Password must contain a lowercase letter';
     }
 
-    if (requireNumber &&
-        !RegExp(r'[0-9]').hasMatch(value)) {
+    if (requireNumber && !RegExp(r'[0-9]').hasMatch(value)) {
       return 'Password must contain a number';
     }
 
@@ -76,11 +69,7 @@ class AppValidator {
     return null;
   }
 
-
-  static String? validateConfirmPassword(
-      String? value,
-      String? password,
-      ) {
+  static String? validateConfirmPassword(String? value, String? password) {
     if (value == null || value.isEmpty) {
       return 'Please confirm your password';
     }
@@ -95,7 +84,6 @@ class AppValidator {
 
     return null;
   }
-
 
   static String? validateName(String? value) {
     if (value == null || value.trim().isEmpty) {
@@ -119,20 +107,14 @@ class AppValidator {
     return null;
   }
 
-
   static String? validatePhone(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Phone number is required';
     }
 
-    final phone = value.trim().replaceAll(
-      RegExp(r'[\s-]'),
-      '',
-    );
+    final phone = value.trim().replaceAll(RegExp(r'[\s-]'), '');
 
-    final phoneRegex = RegExp(
-      r'^(?:\+20|0020|0)?1[0125][0-9]{8}$',
-    );
+    final phoneRegex = RegExp(r'^(?:\+20|0020|0)?1[0125][0-9]{8}$');
 
     if (!phoneRegex.hasMatch(phone)) {
       return 'Please enter a valid phone number';
@@ -141,9 +123,6 @@ class AppValidator {
     return null;
   }
 
-  // =========================
-  // Username
-  // =========================
   static String? validateUsername(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Username is required';
@@ -170,13 +149,48 @@ class AppValidator {
     return null;
   }
 
-
   static String? validateRequired(
-      String? value, {
-        String fieldName = 'This field',
-      }) {
+    String? value, {
+    String fieldName = 'This field',
+  }) {
     if (value == null || value.trim().isEmpty) {
       return '$fieldName is required';
+    }
+
+    return null;
+  }
+
+  static String? validateTaskTitle(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Task title is required';
+    }
+
+    final title = value.trim();
+
+    if (title.length < 3) {
+      return 'Task title must be at least 3 characters';
+    }
+
+    if (title.length > 100) {
+      return 'Task title must not exceed 100 characters';
+    }
+
+    return null;
+  }
+
+  static String? validateTaskDescription(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Task description is required';
+    }
+
+    final description = value.trim();
+
+    if (description.length < 5) {
+      return 'Description must be at least 5 characters';
+    }
+
+    if (description.length > 300) {
+      return 'Description must not exceed 300 characters';
     }
 
     return null;
