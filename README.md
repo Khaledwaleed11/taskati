@@ -311,6 +311,34 @@ Possible future improvements include:
 * Task statistics and analytics
 
 ---
+## 📱 Screenshots
+
+### 🔐 Login
+<img width="720" height="1600" alt="login_screen" src="https://github.com/user-attachments/assets/6407a7c1-38ac-4dd8-9a63-8fb831e43b62" />
+
+### 📝 Register
+<img width="720" height="1600" alt="register_screen" src="https://github.com/user-attachments/assets/60b2c199-a9b0-4646-a39d-e88afbf4a002" />
+
+### 🏠 Home
+<img width="720" height="1600" alt="home_screen" src="https://github.com/user-attachments/assets/b70efae4-a054-473f-ad0b-08539d8931ad" />
+
+### 👤 Profile
+<img width="720" height="1600" alt="profile_screen" src="https://github.com/user-attachments/assets/6fc7662e-0ce5-47ef-82a4-54f65efea315" />
+
+### ➕ Add Task
+<img width="720" height="1600" alt="add_screen" src="https://github.com/user-attachments/assets/b8360de7-8710-4951-9135-e118a568c7db" />
+
+### ✅ Done Tasks
+<img width="720" height="1600" alt="done_screen" src="https://github.com/user-attachments/assets/5c0fc6e8-9996-49f4-801e-239630efae3d" />
+
+### 🌙 Dark Theme
+<img width="720" height="1600" alt="dark_theme2" src="https://github.com/user-attachments/assets/cbf3a97b-6912-4091-bd6b-01f4f7d30a42" />
+
+### 🚀 Splash Screen
+<img width="1080" height="2400" alt="splash_screen" src="https://github.com/user-attachments/assets/0f0c89a6-47d3-4228-aaf5-b59aceecc36b" />
+
+### ✏️ Update Task
+<img width="720" height="1600" alt="update_screen" src="https://github.com/user-attachments/assets/e5504a61-969a-4831-9acf-b2d239a84083" />
 
 ## 👨‍💻 Developer
 
