@@ -1,60 +1,325 @@
-# taskati
+# 📋 Taskati
 
-A new Flutter project.
+**Taskati** is a modern and simple Flutter task management application designed to help users create, manage, organize, and track their daily tasks easily.
 
-## Getting Started
-# Taskatii 📝
+The app provides a clean and user-friendly interface with authentication, task management, search, profile customization, dark mode, and local data storage.
 
-Taskatii is a simple and user-friendly Flutter task management application
-that helps users organize and manage their daily tasks.
-
-## 📱 About The Project
-
-Taskatii allows users to:
-
-- Create new tasks
-- Edit existing tasks
-- Delete tasks
-- Mark tasks as completed
-- View completed tasks
-- Move tasks between active and completed tasks
-- Create a user profile
-- Add a profile picture using the camera or gallery
-- Register and login
-- Logout from the application
+---
 
 ## ✨ Features
 
-- 🔐 Login & Register
-- 📝 Add Tasks
-- ✏️ Edit Tasks
-- 🗑️ Delete Tasks
-- ✅ Complete Tasks
-- 📋 View Done Tasks
-- 👤 Profile Screen
-- 📷 Camera & Gallery Image Picker
-- 🔒 Permission Handling
-- 💾 Local Data Storage using Hive
-- 🎨 Clean and simple UI
+### 🔐 Authentication
+
+* User Registration
+* User Login
+* Email validation
+* Password validation
+* Confirm password validation
+* Prevent duplicate email registration
+* Login session management
+* Logout functionality
+* Loading state during login
+
+### 📝 Task Management
+
+* Add new tasks
+* Edit existing tasks
+* Delete tasks
+* Mark tasks as completed
+* View pending tasks
+* View completed tasks
+* Task counter for Pending and Done tasks
+* Empty state when there are no tasks
+* Task validation
+
+### 🔍 Search
+
+* Search tasks by title
+* Quickly find tasks from the Home screen
+* Dynamic task filtering
+
+### 👤 Profile
+
+* Display user information
+* Display name and email
+* Change profile picture
+* Pick image from Gallery
+* Take profile picture using Camera
+* Save profile picture locally
+
+### 🌙 Theme
+
+* Light Mode
+* Dark Mode
+* Switch between themes from the Home screen
+* Switch between themes from the Profile screen
+
+### 💾 Local Storage
+
+The application uses **Hive** for local data storage.
+
+Hive is used to store:
+
+* User accounts
+* Tasks
+* Completed tasks
+* Login session
+* Profile pictures
+
+### 🎨 UI / UX
+
+* Clean and modern interface
+* Responsive layouts
+* Reusable custom form fields
+* Validation messages
+* Confirmation dialogs
+* Empty states
+* Loading states
+* Consistent colors and components
+* Dark mode support
+
+---
 
 ## 🛠️ Technologies Used
 
-- Flutter
-- Dart
-- Hive
-- Hive Flutter
-- Image Picker
-- Permission Handler
+* **Flutter**
+* **Dart**
+* **Hive**
+* **Hive Flutter**
+* **Image Picker**
+* **Permission Handler**
+* **Material Design**
 
+---
 
+## 📦 Packages
 
-This project is a starting point for a Flutter application.
+Main packages used in the project:
 
-A few resources to get you started if this is your first Flutter project:
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+  hive:
+  hive_flutter:
+  image_picker:
+  permission_handler:
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## 🏗️ Project Structure
+
+```text
+lib/
+│
+├── auth/
+│   ├── login_screen.dart
+│   └── register_screen.dart
+│
+├── home/
+│   └── home_screen.dart
+│
+├── add_task/
+│   └── add_task.dart
+│
+├── done/
+│   └── done_tasks.dart
+│
+├── profile/
+│   └── profile_screen.dart
+│
+├── session/
+│   └── session_controller.dart
+│
+├── theme/
+│   └── theme_controller.dart
+│
+├── widgets/
+│   └── custom_field.dart
+│
+├── app_validate.dart
+│
+└── main.dart
+```
+
+---
+
+## 🔄 App Flow
+
+```text
+Start App
+    │
+    ▼
+Check Login Session
+    │
+    ├── Logged In ──────► Home Screen
+    │
+    └── Not Logged In
+              │
+              ▼
+         Login Screen
+              │
+              ├── Login
+              │
+              └── Register
+                       │
+                       ▼
+                 Create Account
+                       │
+                       ▼
+                    Login
+                       │
+                       ▼
+                  Home Screen
+```
+
+---
+
+## 🗃️ Data Storage
+
+Taskati uses Hive boxes to manage local application data.
+
+### Users Box
+
+```text
+users
+```
+
+Stores:
+
+```text
+name
+email
+password
+profileImage
+```
+
+### Tasks Box
+
+```text
+myTask
+```
+
+Stores:
+
+```text
+task
+description
+isDone
+```
+
+### Completed Tasks Box
+
+```text
+doneTask
+```
+
+Stores completed tasks.
+
+### Session Box
+
+```text
+session
+```
+
+Stores:
+
+```text
+isLoggedIn
+userName
+userEmail
+```
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Khaledwaleed11/taskati.git
+```
+
+### 2. Navigate to the project
+
+```bash
+cd taskati
+```
+
+### 3. Install dependencies
+
+```bash
+flutter pub get
+```
+
+### 4. Run the application
+
+```bash
+flutter run
+```
+
+---
+
+## 📱 Application Screens
+
+The application contains:
+
+* Login Screen
+* Register Screen
+* Home Screen
+* Add Task Screen
+* Edit Task Screen
+* Done Tasks Screen
+* Profile Screen
+* Splash / Loading Experience
+
+---
+
+## 🔒 Validation
+
+Taskati includes a centralized validation class called `AppValidator`.
+
+It handles validation for:
+
+* Email
+* Password
+* Confirm Password
+* Name
+* Phone Number
+* Username
+* Required fields
+
+This makes validation reusable across different screens.
+
+---
+
+## 🎯 Future Improvements
+
+Possible future improvements include:
+
+* Firebase Authentication
+* Cloud database synchronization
+* Push notifications
+* Task deadlines
+* Task priorities
+* Task categories
+* Reminder notifications
+* Cloud backup
+* Multiple user devices synchronization
+* Task statistics and analytics
+
+---
+
+## 👨‍💻 Developer
+
+**Khaled Waleed**
+
+Flutter Developer
+
+---
+
+## 📄 License
+
+This project is created for learning and development purposes.
