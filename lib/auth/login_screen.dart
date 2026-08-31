@@ -100,7 +100,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // EMAIL LABEL
                       Row(
                         children: [
                           Container(
@@ -127,9 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 12),
-
                       CustomFormField(
                         controller: emailController,
                         hintText: "Enter your email",
@@ -138,10 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         keyboardType: TextInputType.emailAddress,
                         validator: AppValidator.validateEmail,
                       ),
-
                       const SizedBox(height: 20),
-
-                      // PASSWORD LABEL
                       Row(
                         children: [
                           Container(
@@ -168,9 +162,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 12),
-
                       CustomFormField(
                         controller: passwordController,
                         hintText: "Enter your password",
@@ -193,8 +185,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
 
                       const SizedBox(height: 25),
-
-                      // LOGIN BUTTON
                       SizedBox(
                         height: 54,
                         child: ElevatedButton.icon(
@@ -290,7 +280,6 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!formKey.currentState!.validate()) {
       return;
     }
-
     setState(() {
       isLoading = true;
     });
@@ -325,21 +314,16 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         isLoading = false;
       });
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Email or password is incorrect"),
           backgroundColor: Colors.red,
         ),
       );
-
       return;
     }
-
     await SessionController.login(name: user["name"], email: user["email"]);
-
     if (!mounted) return;
-
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(

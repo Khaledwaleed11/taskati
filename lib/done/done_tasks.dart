@@ -1,67 +1,178 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class DoneTasks extends StatefulWidget {
-  const DoneTasks({super.key});
+  final String userEmail;
+
+  const DoneTasks({super.key, required this.userEmail});
 
   @override
   State<DoneTasks> createState() => _DoneTasksState();
 }
 
 class _DoneTasksState extends State<DoneTasks> {
-  final doneBox = Hive.box("doneTask");
-  final myTaskBox = Hive.box("myTask");
+  late final Box doneBox;
+  late final Box myTaskBox;
 
-  void showDeleteDialog(int index) {
+  @override
+  void initState() {
+    super.initState();
+
+    doneBox = Hive.box("doneTask");
+    myTaskBox = Hive.box("myTask");
+  }
+
+  String formatDate(String date) {
+    if (date.isEmpty) {
+      return "No date";
+    }
+
+    try {
+      final parsedDate = DateTime.parse(date);
+
+      return "${parsedDate.day.toString().padLeft(2, '0')}/"
+          "${parsedDate.month.toString().padLeft(2, '0')}/"
+          "${parsedDate.year}";
+    } catch (_) {
+      return "No date";
+    }
+  }
+
+  String formatTime(dynamic hour, dynamic minute) {
+    if (hour == null || minute == null) {
+      return "No time";
+    }
+
+    final int? parsedHour = int.tryParse(hour.toString());
+    final int? parsedMinute = int.tryParse(minute.toString());
+
+    if (parsedHour == null || parsedMinute == null) {
+      return "No time";
+    }
+
+    final time = TimeOfDay(hour: parsedHour, minute: parsedMinute);
+
+    return time.format(context);
+  }
+
+  bool isUserTask(Map<dynamic, dynamic> taskData) {
+    final String taskEmail =
+        taskData["userEmail"]?.toString().trim().toLowerCase() ?? "";
+
+    final String currentEmail = widget.userEmail.trim().toLowerCase();
+
+    return taskEmail == currentEmail;
+  }
+
+  List<dynamic> getUserDoneTaskKeys() {
+    return doneBox.keys.where((key) {
+      final rawData = doneBox.get(key);
+
+      if (rawData == null || rawData is! Map) {
+        return false;
+      }
+
+      final taskData = Map<dynamic, dynamic>.from(rawData);
+
+      return isUserTask(taskData);
+    }).toList();
+  }
+
+  void showDeleteDialog(dynamic taskKey) {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
           icon: const Icon(Icons.delete_outline, color: Colors.red, size: 40),
-
           title: const Text("Delete Task?", textAlign: TextAlign.center),
-
           content: const Text(
             "Are you sure you want to permanently delete "
             "this completed task?",
             textAlign: TextAlign.center,
           ),
-
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
               },
-
               child: const Text("Cancel"),
             ),
-
             ElevatedButton(
               onPressed: () async {
-                await doneBox.deleteAt(index);
+                await doneBox.delete(taskKey);
 
-                if (!context.mounted) return;
+                if (!dialogContext.mounted) return;
 
-                Navigator.pop(context);
-
-                setState(() {});
+                Navigator.pop(dialogContext);
               },
-
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
-
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-
               child: const Text("Delete"),
             ),
           ],
         );
       },
     );
+  }
+
+  Future<void> moveToPending(dynamic taskKey) async {
+    final rawData = doneBox.get(taskKey);
+
+    if (rawData == null || rawData is! Map) {
+      return;
+    }
+
+    final taskData = Map<dynamic, dynamic>.from(rawData);
+
+    final undoneTask = {
+      "task": taskData["task"] ?? "",
+      "description": taskData["description"] ?? "",
+      "priority": taskData["priority"] ?? "Medium",
+      "isDone": false,
+
+      "userEmail": taskData["userEmail"] ?? widget.userEmail,
+
+      // DATE & TIME
+      "date": taskData["date"],
+      "hour": taskData["hour"],
+      "minute": taskData["minute"],
+    };
+    await myTaskBox.add(undoneTask);
+
+    await doneBox.delete(taskKey);
+  }
+
+  Color getPriorityColor(String priority) {
+    switch (priority.toLowerCase()) {
+      case "high":
+        return Colors.red;
+
+      case "low":
+        return Colors.green;
+
+      case "medium":
+      default:
+        return Colors.orange;
+    }
+  }
+
+  IconData getPriorityIcon(String priority) {
+    switch (priority.toLowerCase()) {
+      case "high":
+        return Icons.priority_high_rounded;
+
+      case "low":
+        return Icons.keyboard_arrow_down_rounded;
+
+      case "medium":
+      default:
+        return Icons.remove_rounded;
+    }
   }
 
   @override
@@ -76,22 +187,58 @@ class _DoneTasksState extends State<DoneTasks> {
         centerTitle: true,
       ),
 
-      body: doneBox.isEmpty
-          ? buildEmptyState()
-          : ListView.builder(
-              padding: const EdgeInsets.all(12),
-              itemCount: doneBox.length,
+      body: ValueListenableBuilder<Box>(
+        valueListenable: doneBox.listenable(),
 
-              itemBuilder: (BuildContext context, int index) {
-                final taskData = doneBox.getAt(index);
+        builder: (context, box, child) {
+          final userTaskKeys = getUserDoneTaskKeys();
 
-                return buildDoneTaskCard(taskData: taskData, index: index);
-              },
-            ),
+          if (userTaskKeys.isEmpty) {
+            return buildEmptyState();
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(12),
+
+            itemCount: userTaskKeys.length,
+
+            itemBuilder: (context, index) {
+              final taskKey = userTaskKeys[index];
+
+              final rawData = box.get(taskKey);
+
+              if (rawData == null || rawData is! Map) {
+                return const SizedBox.shrink();
+              }
+
+              final taskData = Map<dynamic, dynamic>.from(rawData);
+
+              return buildDoneTaskCard(taskKey: taskKey, taskData: taskData);
+            },
+          );
+        },
+      ),
     );
   }
 
-  Widget buildDoneTaskCard({required dynamic taskData, required int index}) {
+  Widget buildDoneTaskCard({
+    required dynamic taskKey,
+    required Map<dynamic, dynamic> taskData,
+  }) {
+    final String taskTitle = (taskData["task"] ?? "").toString();
+
+    final String description = (taskData["description"] ?? "").toString();
+
+    final String priority = (taskData["priority"] ?? "Medium").toString();
+
+    final String date = taskData["date"]?.toString() ?? "";
+
+    final dynamic hour = taskData["hour"];
+
+    final dynamic minute = taskData["minute"];
+
+    final Color priorityColor = getPriorityColor(priority);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
 
@@ -103,9 +250,7 @@ class _DoneTasksState extends State<DoneTasks> {
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-
             blurRadius: 12,
-
             offset: const Offset(0, 5),
           ),
         ],
@@ -115,6 +260,8 @@ class _DoneTasksState extends State<DoneTasks> {
         padding: const EdgeInsets.all(14),
 
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+
           children: [
             Checkbox(
               value: true,
@@ -127,19 +274,7 @@ class _DoneTasksState extends State<DoneTasks> {
 
               onChanged: (value) async {
                 if (value == false) {
-                  final task = doneBox.getAt(index);
-
-                  final undoneTask = {
-                    "task": task["task"],
-                    "description": task["description"],
-                    "isDone": false,
-                  };
-
-                  await myTaskBox.add(undoneTask);
-
-                  await doneBox.deleteAt(index);
-
-                  setState(() {});
+                  await moveToPending(taskKey);
                 }
               },
             ),
@@ -152,7 +287,7 @@ class _DoneTasksState extends State<DoneTasks> {
 
                 children: [
                   Text(
-                    taskData["task"],
+                    taskTitle,
 
                     maxLines: 1,
 
@@ -161,64 +296,176 @@ class _DoneTasksState extends State<DoneTasks> {
                     style: const TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
-
                       decoration: TextDecoration.lineThrough,
                     ),
                   ),
 
                   const SizedBox(height: 6),
+                  if (description.isNotEmpty)
+                    Text(
+                      description,
 
-                  Text(
-                    taskData["description"],
+                      maxLines: 2,
 
-                    maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
 
-                    overflow: TextOverflow.ellipsis,
-
-                    style: TextStyle(
-                      fontSize: 14,
-
-                      color: Colors.grey.shade600,
-
-                      height: 1.3,
-
-                      decoration: TextDecoration.lineThrough,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade600,
+                        height: 1.3,
+                        decoration: TextDecoration.lineThrough,
+                      ),
                     ),
-                  ),
 
                   const SizedBox(height: 10),
 
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 9,
-                      vertical: 5,
-                    ),
+                  Wrap(
+                    spacing: 7,
+                    runSpacing: 7,
 
-                    decoration: BoxDecoration(
-                      color: Colors.green.withValues(alpha: 0.12),
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 9,
+                          vertical: 5,
+                        ),
 
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
 
-                    child: const Text(
-                      "Completed",
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
 
-                      style: TextStyle(
-                        color: Colors.green,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
+                          children: [
+                            Icon(
+                              Icons.check_circle_outline,
+                              size: 14,
+                              color: Colors.green,
+                            ),
+
+                            SizedBox(width: 4),
+
+                            Text(
+                              "Completed",
+                              style: TextStyle(
+                                color: Colors.green,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 9,
+                          vertical: 5,
+                        ),
+
+                        decoration: BoxDecoration(
+                          color: priorityColor.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+
+                          children: [
+                            Icon(
+                              getPriorityIcon(priority),
+                              size: 14,
+                              color: priorityColor,
+                            ),
+
+                            const SizedBox(width: 4),
+
+                            Text(
+                              priority,
+                              style: TextStyle(
+                                color: priorityColor,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 9,
+                          vertical: 5,
+                        ),
+
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withValues(alpha: 0.12),
+
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+
+                          children: [
+                            const Icon(
+                              Icons.calendar_month_rounded,
+                              size: 14,
+                              color: Colors.blue,
+                            ),
+
+                            const SizedBox(width: 4),
+
+                            Text(
+                              formatDate(date),
+
+                              style: const TextStyle(
+                                color: Colors.blue,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 9,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.access_time_rounded,
+                              size: 14,
+                              color: Colors.orange,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              formatTime(hour, minute),
+                              style: const TextStyle(
+                                color: Colors.orange,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-
             const SizedBox(width: 8),
-
             IconButton(
               onPressed: () {
-                showDeleteDialog(index);
+                showDeleteDialog(taskKey);
               },
 
               icon: const Icon(
@@ -249,7 +496,6 @@ class _DoneTasksState extends State<DoneTasks> {
 
               decoration: BoxDecoration(
                 color: Colors.green.withValues(alpha: 0.10),
-
                 shape: BoxShape.circle,
               ),
 
@@ -260,6 +506,7 @@ class _DoneTasksState extends State<DoneTasks> {
 
             const Text(
               "No Completed Tasks",
+
               textAlign: TextAlign.center,
 
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -270,6 +517,7 @@ class _DoneTasksState extends State<DoneTasks> {
             Text(
               "Complete your tasks\n"
               "and they will appear here.",
+
               textAlign: TextAlign.center,
 
               style: TextStyle(fontSize: 15, color: Colors.grey.shade600),

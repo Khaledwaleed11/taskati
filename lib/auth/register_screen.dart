@@ -107,7 +107,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // NAME
                       CustomFormField(
                         controller: nameController,
                         hintText: "Enter your name",
@@ -118,8 +117,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
 
                       const SizedBox(height: 18),
-
-                      // EMAIL
                       CustomFormField(
                         controller: emailController,
                         hintText: "Enter your email",
@@ -130,8 +127,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
 
                       const SizedBox(height: 18),
-
-                      // PASSWORD
                       CustomFormField(
                         controller: passwordController,
                         hintText: "Enter your password",
@@ -152,10 +147,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         validator: AppValidator.validatePassword,
                       ),
-
                       const SizedBox(height: 18),
-
-                      // CONFIRM PASSWORD
                       CustomFormField(
                         controller: confirmPasswordController,
                         hintText: "Confirm your password",
@@ -184,7 +176,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                       const SizedBox(height: 25),
 
-                      // REGISTER BUTTON
                       SizedBox(
                         height: 52,
                         child: ElevatedButton.icon(
@@ -266,7 +257,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void register() {
-    // VALIDATE
     if (!formKey.currentState!.validate()) {
       return;
     }
@@ -286,10 +276,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    // SAVE USER
     usersBox.put(email, {"name": name, "email": email, "password": password});
 
-    // SUCCESS MESSAGE
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text("Account created successfully!"),
@@ -297,7 +285,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
 
-    // GO TO LOGIN
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
 

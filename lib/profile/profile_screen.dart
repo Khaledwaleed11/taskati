@@ -1,10 +1,8 @@
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-
 import '../auth/login_screen.dart';
 import '../session/session_controller.dart';
 import '../theme/theme_controller.dart';
@@ -34,9 +32,15 @@ class _ProfileState extends State<Profile> {
   void loadProfileImage() {
     final user = usersBox.get(widget.userEmail);
 
-    if (user != null && user["profileImage"] != null) {
+    if (user == null) {
+      return;
+    }
+
+    final savedImage = user["profileImage"];
+
+    if (savedImage != null) {
       setState(() {
-        profileImage = Uint8List.fromList(List<int>.from(user["profileImage"]));
+        profileImage = Uint8List.fromList(List<int>.from(savedImage));
       });
     }
   }
@@ -509,6 +513,16 @@ class _ProfileState extends State<Profile> {
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> logout() async {
+    await SessionController.logout();
+    if (!mounted) return;
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      (route) => false,
     );
   }
 
